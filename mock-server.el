@@ -13,12 +13,15 @@
 
  (defun mock-imdb-handler (httpcon)
    (elnode-http-start httpcon 200 '("Content Type" . "application/json"))
-   (elnode-http-return httpcon "not really a json…"))
-
-(defun start-mock-server ()
-  (elnode-start 'mock-imdb-handler :port 8080))
+   (elnode-http-return httpcon (format "path: %s\nparameters: %s" (elnode-http-pathinfo httpcon) (elnode-http-params httpcon))))
 
 (defun stop-mock-server ()
   (condition-case nil
       (elnode-stop 8080)
     (error nil)))
+
+(defun start-mock-server (&optional cycle)
+  (when cycle
+    (stop-mock-server))
+  (elnode-start 'mock-imdb-handler :port 8080))
+
