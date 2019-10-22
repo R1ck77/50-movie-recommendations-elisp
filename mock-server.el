@@ -11,4 +11,14 @@
 
 (defvar samples-dir "sample_results")
 
+ (defun mock-imdb-handler (httpcon)
+   (elnode-http-start httpcon 200 '("Content Type" . "application/json"))
+   (elnode-http-return httpcon "not really a json…"))
 
+(defun start-mock-server ()
+  (elnode-start 'mock-imdb-handler :port 8080))
+
+(defun stop-mock-server ()
+  (condition-case nil
+      (elnode-stop 8080)
+    (error nil)))
