@@ -11,9 +11,25 @@
 
 (defvar samples-dir "sample_results")
 
- (defun mock-imdb-handler (httpcon)
-   (elnode-http-start httpcon 200 '("Content Type" . "application/json"))
-   (elnode-http-return httpcon (format "path: %s\nparameters: %s" (elnode-http-pathinfo httpcon) (elnode-http-params httpcon))))
+(defun info-handler (httpcon)
+  (elnode-http-start httpcon 200 '("Content Type" . "application/json"))
+  (elnode-http-return httpcon (format "path: %s\nparameters: %s" (elnode-http-pathinfo httpcon) (elnode-http-params httpcon))))
+
+(defconst mock-server--result '("search-result"  "jurassic_park_example.json"
+                                "search-not-found"  "movie_not_found.json"
+                                "invalid-key"  "invalid_api_key.json"
+                                "no-key"  "no_api_key.json"))
+
+(defun mock-server--get-sample (response-type)
+  (plist-get)
+  (with-current-buffer (get-file-buffer "sample_results/jurassic_park_example.json")
+                                (buffer-substring (point-min) (point-max))))
+
+(defun mock-imdb-handler (httpcon)
+  (elnode-http-start httpcon 200 '("Content Type" . "application/json"))
+  (elnode-http-return httpcon (mock-server--get-sample "search_result")))
+
+
 
 (defun stop-mock-server ()
   (condition-case nil
