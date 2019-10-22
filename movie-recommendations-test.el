@@ -8,9 +8,9 @@
     (elnode-stop port)))
 
 (describe "movie-recomendations"
-  (before-each
+  (before-all
     (start-mock-server))
-  (after-each
+  (after-all
     (stop-servers))
   (it "exists and load (1)"
     (expect t :to-be t))
