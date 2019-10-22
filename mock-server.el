@@ -1,4 +1,5 @@
 ;;; -*- lexical-binding: t -*-
+(require 'elnode)
 
 (defmacro my-lexical-binding-q ()
   "Copied from here: 'https://yoo2080.wordpress.com/2011/12/30/how-to-check-dynamically-if-lexical-scoping-is-active-in-emacs-lisp/'"
@@ -52,3 +53,4 @@
     (stop-mock-server))
   (elnode-start 'mock-imdb-handler :port 8080))
 
+(provide 'mock-server)
