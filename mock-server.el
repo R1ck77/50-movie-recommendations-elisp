@@ -49,6 +49,7 @@
     (error nil)))
 
 (defun start-mock-server (&optional cycle)
+  (interactive)
   (when cycle
     (stop-mock-server))
   (elnode-start 'mock-imdb-handler :port 8080))

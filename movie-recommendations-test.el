@@ -13,7 +13,12 @@
   (after-all
     (stop-servers))
   (describe "movie-recommendations--search-movie"
-    (it "returns the \"invalid API key\" message"
+    (it "returns the \"no API key provided\" content"
+      (expect (let ((movie-recommendations-debug-server '("localhost" . 8080)))
+                (movie-recommendations--search-movie "INVALID_KEY" "jurassic park"))
+              :to-equal '((Response . "False")
+                          (Error . "No API key provided."))))
+    (it "returns the \"invalid API key\" content"
       (expect (let ((movie-recommendations-debug-server '("localhost" . 8080)))
                 (movie-recommendations--search-movie "INVALID_KEY" "jurassic park"))
               :to-equal '((Response . "False")
