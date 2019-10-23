@@ -28,16 +28,24 @@
       (insert-file-contents file-to-load)
       (buffer-substring-no-properties (point-min) (point-max)))))
 
+(defun mock-server--switch-page (api-key search)
+  (with-current-buffer (find-file "/tmp/visited.txt")
+       (goto-char (point-max))
+       (insert (format "%s %s\n" api-key search))
+       (basic-save-buffer)
+       (kill-buffer))
+     (cond
+      ((not api-key) 'no-key)
+      ((not (equal "API-KEY" api-key)) 'invalid-key)
+      ((not (equal "jurassic+park" search)) 'search-not-found)
+      ((equal "jurassic+park" search) 'search-result)
+      (t "unexpected condition")))
+
 (defun mock-server--select-content (httpcon)
   (mock-server--get-sample
    (let ((api-key (elnode-http-param httpcon "apikey"))
          (search (elnode-http-param httpcon "t")))
-     (cond
-      ((null api-key) 'no-key)
-      ((not (equal "API-KEY" api-key)) 'invalid-key)
-      ((not (equal "jurassic+park" search)) 'search-not-found)
-      ((equal "jurassic+park" search) 'search-result)
-      (t "unexpected condition")))))
+     (mock-server--switch-page api-key search))))
 
 (defun mock-imdb-handler (httpcon)
   (elnode-http-start httpcon 200 '("Content Type" . "application/json"))
