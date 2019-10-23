@@ -35,8 +35,8 @@
      (cond
       ((null api-key) 'no-key)
       ((not (equal "API-KEY" api-key)) 'invalid-key)
-      ((not (equal "jurassic" search)) 'search-not-found)
-      ((equal "jurassic" search) 'search-result)
+      ((not (equal "jurassic+park" search)) 'search-not-found)
+      ((equal "jurassic+park" search) 'search-result)
       (t "unexpected condition")))))
 
 (defun mock-imdb-handler (httpcon)

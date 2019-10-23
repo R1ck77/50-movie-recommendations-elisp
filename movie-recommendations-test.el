@@ -7,12 +7,53 @@
   (dolist (port (elnode-ports))
     (elnode-stop port)))
 
-(describe "movie-recomendations"
+(describe "movie-recommendations"
   (before-all
     (start-mock-server))
   (after-all
     (stop-servers))
-  (it "exists and load (1)"
-    (expect t :to-be t))
-  (it "exists and load (2)"
-    (expect t :to-be t)))
+  (describe "movie-recommendations--search-movie"
+    (it "returns the \"invalid API key\" message"
+      (expect (let ((movie-recommendations-debug-server '("localhost" . 8080)))
+                (movie-recommendations--search-movie "INVALID_KEY" "jurassic park"))
+              :to-equal '((Response . "False")
+                          (Error . "Invalid API key!"))))
+    (it "returns the correct movie data if the movie is present"
+      (expect (let ((movie-recommendations-debug-server '("localhost" . 8080)))
+                (movie-recommendations--search-movie "API-KEY" "jurassic park"))
+              :to-equal '((Title . "Jurassic Park")
+                          (Year . "1993")
+                          (Rated . "PG-13")
+                          (Released . "11 Jun 1993")
+                          (Runtime . "127 min")
+                          (Genre . "Action, Adventure, Sci-Fi, Thriller")
+                          (Director . "Steven Spielberg")
+                          (Writer . "Michael Crichton (novel), Michael Crichton (screenplay), David Koepp (screenplay)")
+                          (Actors . "Sam Neill, Laura Dern, Jeff Goldblum, Richard Attenborough")
+                          (Plot . "A pragmatic Paleontologist visiting an almost complete theme park is tasked with protecting a couple of kids after a power failure causes the park's cloned dinosaurs to run loose.")
+                          (Language . "English, Spanish")
+                          (Country . "USA")
+                          (Awards . "Won 3 Oscars. Another 32 wins & 25 nominations.")
+                          (Poster . "https://m.media-amazon.com/images/M/MV5BMjM2MDgxMDg0Nl5BMl5BanBnXkFtZTgwNTM2OTM5NDE@._V1_SX300.jpg")
+                          (Ratings .
+                                   [((Source . "Internet Movie Database")
+                                     (Value . "8.1/10"))
+                                    ((Source . "Rotten Tomatoes")
+                                     (Value . "91%"))
+                                    ((Source . "Metacritic")
+                                     (Value . "68/100"))])
+                          (Metascore . "68")
+                          (imdbRating . "8.1")
+                          (imdbVotes . "796,497")
+                          (imdbID . "tt0107290")
+                          (Type . "movie")
+                          (DVD . "10 Oct 2000")
+                          (BoxOffice . "$45,299,680")
+                          (Production . "Universal City Studios")
+                          (Website . "N/A")
+                          (Response . "True"))))
+    (it "returns the \"movie not found\" data if no movie is present"
+      (expect (let ((movie-recommendations-debug-server '("localhost" . 8080)))
+                (movie-recommendations--search-movie "API-KEY" "invalid-movie"))
+              :to-equal '((Response . "False")
+                          (Error . "Invalid API key!"))))))
