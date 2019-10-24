@@ -14,7 +14,6 @@
                      (movie-recommendations--get-base-url)
                      api-key
                      (movie-recommendations--format-search-string search-string))))
-    (print url)
     (url-utils-get-json-url-content url)))
 
 

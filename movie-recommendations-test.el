@@ -56,4 +56,4 @@
       (expect (let ((movie-recommendations-server '("localhost" . 8080)))
                 (movie-recommendations--search-movie "API-KEY" "invalid-movie"))
               :to-equal '((Response . "False")
-                          (Error . "Invalid API key!"))))))
+                          (Error . "Movie not found!"))))))

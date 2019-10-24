@@ -1,14 +1,19 @@
 ;;; -*- lexical-binding: t -*-
 (require 'elnode)
 
+(defconst valid-api-key "API-KEY")
+(defconst movie-present-search "jurassic park")
+
 (defmacro my-lexical-binding-q ()
   "Copied from here: 'https://yoo2080.wordpress.com/2011/12/30/how-to-check-dynamically-if-lexical-scoping-is-active-in-emacs-lisp/'"
   (let ((tempvar (make-symbol "x")))
     `(let ((,tempvar nil)
            (f (let ((,tempvar t)) (lambda () ,tempvar))))
        (funcall f))))
-
 (assert (my-lexical-binding-q))
+
+(defmacro comment (&rest args))
+
 
 (defvar samples-dir "sample_results")
 
@@ -29,16 +34,17 @@
       (buffer-substring-no-properties (point-min) (point-max)))))
 
 (defun mock-server--switch-page (api-key search)
-  (with-current-buffer (find-file "/tmp/visited.txt")
-       (goto-char (point-max))
-       (insert (format "%s %s\n" api-key search))
-       (basic-save-buffer)
-       (kill-buffer))
+  (comment
+   (with-current-buffer (find-file "/tmp/visited.txt")
+     (goto-char (point-max))
+     (insert (format "%s %s\n" api-key search))
+     (basic-save-buffer)
+     (kill-buffer)))
      (cond
       ((not api-key) 'no-key)
-      ((not (equal "API-KEY" api-key)) 'invalid-key)
-      ((not (equal "jurassic+park" search)) 'search-not-found)
-      ((equal "jurassic+park" search) 'search-result)
+      ((not (equal valid-api-key api-key)) 'invalid-key)
+      ((not (equal movie-present-search search)) 'search-not-found)
+      ((equal movie-present-search search) 'search-result)
       (t "unexpected condition")))
 
 (defun mock-server--select-content (httpcon)
