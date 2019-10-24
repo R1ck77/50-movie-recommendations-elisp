@@ -1,3 +1,4 @@
+(setq load-path (cons "." load-path))
 (require 'url-utils)
 
 (defvar movie-recommendations-server '("www.omdbapi.com" . 80)
