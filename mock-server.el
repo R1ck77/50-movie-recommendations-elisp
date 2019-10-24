@@ -4,6 +4,9 @@
 (defconst valid-api-key "API-KEY")
 (defconst movie-present-search "jurassic park")
 
+(defun elnode-error (msg &rest arg)
+  "Temporary workaround for elnode errors showing during the test.")
+
 (defmacro my-lexical-binding-q ()
   "Copied from here: 'https://yoo2080.wordpress.com/2011/12/30/how-to-check-dynamically-if-lexical-scoping-is-active-in-emacs-lisp/'"
   (let ((tempvar (make-symbol "x")))
