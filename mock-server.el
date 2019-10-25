@@ -24,21 +24,17 @@
   (elnode-http-start httpcon 200 '("Content Type" . "application/json"))
   (elnode-http-return httpcon (format "path: %s\nparameters: %s" (elnode-http-pathinfo httpcon) (elnode-http-params httpcon))))
 
-(defconst mock-server--result '(search-result  (200 . "jurassic_park_example.json")
-                                search-not-found  (200 . "movie_not_found.json")
-                                invalid-key (401 . "invalid_api_key.json")
-                                no-key  (401 . "no_api_key.json")))
-
-
+(defconst mock-server--result '(search-result  "jurassic_park_example.json"
+                                search-not-found  "movie_not_found.json"
+                                invalid-key "invalid_api_key.json"
+                                no-key  "no_api_key.json"))
 
 (defun mock-server--get-sample (response-type)
-  (let* ((result (plist-get mock-server--result response-type))
-         (file-to-load (concat (file-name-as-directory "sample_results")
-                               (cdr result))))
-    (cons (car result)
-          (with-temp-buffer
-            (insert-file-contents file-to-load)
-            (buffer-substring-no-properties (point-min) (point-max))))))
+  (let ((file-to-load (concat (file-name-as-directory "sample_results")
+                              (plist-get mock-server--result response-type))))
+    (with-temp-buffer
+      (insert-file-contents file-to-load)
+      (buffer-substring-no-properties (point-min) (point-max)))))
 
 (defun mock-server--switch-page (api-key search)
   (comment
@@ -61,9 +57,8 @@
      (mock-server--switch-page api-key search))))
 
 (defun mock-imdb-handler (httpcon)
-  (let ((contents (mock-server--select-content httpcon)))
-    (elnode-http-start httpcon (car contents) '("Content Type" . "application/json"))
-    (elnode-http-return httpcon (cdr contents))))
+  (elnode-http-start httpcon 200 '("Content Type" . "application/json"))
+  (elnode-http-return httpcon (mock-server--select-content httpcon)))
 
 (defun stop-mock-server ()
   (condition-case nil
