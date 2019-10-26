@@ -83,4 +83,15 @@
        (spy-on 'read-string :and-return-value "missing movie")
        (movie-recommendations)
        (expect (buffer-substring (point-min) (point-max))
-               :to-equal "Movie not found!")))))
+               :to-equal "Movie not found!")))
+    (it "writes an error message if no key is provided"
+      (spy-on 'read-string :and-return-value "")
+      (movie-recommendations)
+      (expect (buffer-substring (point-min) (point-max))
+              :to-equal "No API key provided!"))
+    (it "writes an error message if the key provided is wrong"
+      (with-debug-server
+       (spy-on 'read-string :and-return-value "")
+       (movie-recommendations)
+       (expect (buffer-substring (point-min) (point-max))
+               :to-equal "Invalid API key!")))))
