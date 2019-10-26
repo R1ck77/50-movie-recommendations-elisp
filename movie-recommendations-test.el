@@ -63,15 +63,24 @@
                           (Error . "Movie not found!")))))
   (describe "movie-recommendation"
     (it "requests the title of a movie"
-      (spy-on 'read-string)
-      (movie-recommendations)
-      (expect 'read-string :to-have-been-called-with "Enter the name of a movie: ")
-      (movie-recommendations))
+      (with-debug-server 
+       (spy-on 'read-string :and-return-value "movie title")
+       (movie-recommendations)
+       (expect 'read-string :to-have-been-called-with "Enter the name of a movie: ")
+       (movie-recommendations)))
     (it "puts the user in a buffer with the correct name"
-      (spy-on 'read-string :and-return-value "42")
-      (movie-recommendations)
-      (expect (buffer-name) :to-equal "IMDb movies recommendations"))
+      (with-debug-server
+       (spy-on 'read-string :and-return-value "42")
+       (movie-recommendations)
+       (expect (buffer-name) :to-equal "IMDb movies recommendations")))
     (it "puts the user in a buffer with the correct mode"
-      (spy-on 'read-string :and-return-value "42")
-      (movie-recommendations)
-      (expect mode-name :to-equal "*IMDb*"))))
+      (with-debug-server
+       (spy-on 'read-string :and-return-value "42")
+       (movie-recommendations)
+       (expect mode-name :to-equal "*IMDb*")))
+    (it "writes an error message if the movie is not found"
+      (with-debug-server
+       (spy-on 'read-string :and-return-value "missing movie")
+       (movie-recommendations)
+       (expect (buffer-substring (point-min) (point-max))
+               :to-equal "Movie not found!")))))

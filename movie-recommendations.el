@@ -22,15 +22,31 @@
 
 (defun movie-recommendations--mode ()
   (kill-all-local-variables)
+  (erase-buffer)
   (setq major-mode 'movie-recommendations-mode)
   (setq mode-name movie-recommendations-mode-name))
+
+(defun movie-recommendations--errorp (answer)
+  (equal "False" (alist-get 'Response answer)))
+
+(defun movie-recommendations--error-reason (answer)
+  (alist-get 'Error answer))
+
+(defun movie-recommendations--handle-error (answer)
+  (movie-recommendations--error-reason answer))
+
+(defun movie-recommendations--route-answer (answer)
+  (if (movie-recommendations--errorp answer)
+      (movie-recommendations--handle-error answer)
+    "I didn't think it this through"))
 
 (defun movie-recommendations ()
   (interactive)
   (switch-to-buffer (get-buffer-create movie-recommendations-buffer-name))
   (movie-recommendations--mode)
-  (let ((movie-name (read-string "Enter the name of a movie: ")))
-    (insert (format "%s" (movie-recommendations--search-movie "API-KEY" movie-name)))))
+  (let* ((movie-name (read-string "Enter the name of a movie: "))
+         (imdb-answer (movie-recommendations--search-movie "API-KEY" movie-name)))
+    (insert (movie-recommendations--route-answer imdb-answer))))
 
 
 (provide 'movie-recommendations)
