@@ -23,14 +23,14 @@
 (defun movie-recommendations--mode ()
   (kill-all-local-variables)
   (setq major-mode 'movie-recommendations-mode)
-  (setq mode-name movie-recommendations-mode-name)
-  )
+  (setq mode-name movie-recommendations-mode-name))
 
 (defun movie-recommendations ()
   (interactive)
   (switch-to-buffer (get-buffer-create movie-recommendations-buffer-name))
   (movie-recommendations--mode)
-  (read-string "Enter the name of a movie: "))
+  (let ((movie-name (read-string "Enter the name of a movie: ")))
+    (insert (format "%s" (movie-recommendations--search-movie "API-KEY" movie-name)))))
 
 
 (provide 'movie-recommendations)
