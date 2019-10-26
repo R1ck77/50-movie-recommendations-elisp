@@ -7,6 +7,10 @@
   (dolist (port (elnode-ports))
     (elnode-stop port)))
 
+(defmacro with-debug-server (&rest forms)
+  `(let ((movie-recommendations-server '("localhost" . 8080)))
+     ,@forms))
+
 (describe "movie-recommendations"
   (before-all
     (start-mock-server))
@@ -14,12 +18,12 @@
     (stop-servers))
   (describe "movie-recommendations--search-movie"
     (it "returns the \"invalid API key\" content"
-      (expect (let ((movie-recommendations-server '("localhost" . 8080)))
+      (expect (with-debug-server
                 (movie-recommendations--search-movie "INVALID_KEY" "jurassic park"))
               :to-equal '((Response . "False")
                           (Error . "Invalid API key!"))))
     (it "returns the correct movie data if the movie is present"
-      (expect (let ((movie-recommendations-server '("localhost" . 8080)))
+      (expect (with-debug-server
                 (movie-recommendations--search-movie "API-KEY" "jurassic park"))
               :to-equal '((Title . "Jurassic Park")
                           (Year . "1993")
@@ -53,7 +57,7 @@
                           (Website . "N/A")
                           (Response . "True"))))
     (it "returns the \"movie not found\" data if no movie is present"
-      (expect (let ((movie-recommendations-server '("localhost" . 8080)))
+      (expect (with-debug-server
                 (movie-recommendations--search-movie "API-KEY" "invalid-movie"))
               :to-equal '((Response . "False")
                           (Error . "Movie not found!")))))
