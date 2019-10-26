@@ -1,3 +1,4 @@
+(require 'url)
 
 (defun url-utils--get-url-content (url)
   "Doesn't handle networking issues or special conditions"
