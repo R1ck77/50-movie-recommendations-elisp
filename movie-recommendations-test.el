@@ -56,4 +56,18 @@
       (expect (let ((movie-recommendations-server '("localhost" . 8080)))
                 (movie-recommendations--search-movie "API-KEY" "invalid-movie"))
               :to-equal '((Response . "False")
-                          (Error . "Movie not found!"))))))
+                          (Error . "Movie not found!")))))
+  (describe "movie-recommendation"
+    (it "requests the title of a movie"
+      (spy-on 'read-string)
+      (movie-recommendations)
+      (expect 'read-string :to-have-been-called-with "Enter the name of a movie: ")
+      (movie-recommendations))
+    (it "puts the user in a buffer with the correct name"
+      (spy-on 'read-string :and-return-value "42")
+      (movie-recommendations)
+      (expect (buffer-name) :to-equal "IMDb movies recommendations"))
+    (it "puts the user in a buffer with the correct mode"
+      (spy-on 'read-string :and-return-value "42")
+      (movie-recommendations)
+      (expect mode-name :to-equal "*IMDb*"))))
