@@ -1,3 +1,4 @@
+(require 's)
 (setq load-path (cons "." load-path))
 (require 'url-utils)
 
@@ -33,21 +34,31 @@
   (alist-get 'Error answer))
 
 (defun movie-recommendations--handle-error (answer)
-  (movie-recommendations--error-reason answer))
+  (insert (movie-recommendations--error-reason answer)))
 
-(defun movie-recommendations--route-answer (answer)
+(defun movie-recommendations--handle-movie-content (answer)
+  (insert (format "Title: %s
+Year: %s
+Rated: %s
+Running Time: %s
+Plot: %s
+
+You should watch this movie right now!" "Jurassic Park" 1993 "PG-13" "127 min" "A pragmatic Paleontologist visiting an almost complete theme park is tasked with protecting a couple of kids after a power failure causes the park's cloned dinosaurs to run loose.")))
+
+(defun movie-recommendations--handle-answer (answer)
   (if (movie-recommendations--errorp answer)
       (movie-recommendations--handle-error answer)
-    "I didn't think it this through"))
+    (movie-recommendations--handle-movie-content answer)))
 
 (defun movie-recommendations-read-api-key ()
-  (interactive)
   "Read the API key from the \"api-key.txt\" file"
+  (interactive)
   (condition-case nil
    (with-temp-buffer
      (insert-file-contents "api-key.txt")
-     (buffer-substring (point-min)
-                       (point-max)))
+     (s-trim
+      (buffer-substring (point-min)
+                        (point-max))))
    (error nil)))
 
 (defun movie-recommendations--no-key ()
@@ -56,13 +67,13 @@
 (defun movie-recommendations--for-key (api-key)
   (let* ((movie-name (read-string "Enter the name of a movie: "))
          (imdb-answer (movie-recommendations--search-movie api-key movie-name)))
-    (insert (movie-recommendations--route-answer imdb-answer))))
+    (movie-recommendations--handle-answer imdb-answer)))
 
 (defun movie-recommendations--procedure ()
   (let ((api-key (movie-recommendations-read-api-key)))
     (if (not api-key)
         (movie-recommendations--no-key)
-      (movie-recomendations--for-key api-key))))
+      (movie-recommendations--for-key api-key))))
 
 (defun movie-recommendations ()
   (interactive)

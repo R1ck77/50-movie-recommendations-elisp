@@ -8,6 +8,7 @@
     (elnode-stop port)))
 
 (defmacro with-debug-server (&rest forms)
+  (declare (indent 0))
   `(let ((movie-recommendations-server '("localhost" . 8080)))
      ,@forms))
 
@@ -16,15 +17,12 @@
     (insert content)
     (write-file file)))
 
-;;; TODO/FIXME use unwind-protect
 (defmacro with-api-file (content &rest forms)
   (declare (indent 1))
-  `(progn
-     (condition-case nil
-         (progn
-           (save-to-file "api-key.txt" ,content)
-           ,@forms)     
-       (error nil))
+  `(unwind-protect 
+       (progn
+         (save-to-file "api-key.txt" ,content)
+         ,@forms)     
      (delete-file "api-key.txt")))
 
 (describe "movie-recommendations"
@@ -80,30 +78,29 @@
   (describe "movie-recommendation"
     (it "requests the title of a movie"
       (with-api-file "API-KEY"
-        (with-debug-server 
-            (spy-on 'read-string :and-return-value "movie title")
-          (movie-recommendations)
-          (expect 'read-string :to-have-been-called-with "Enter the name of a movie: ")
-          (movie-recommendations))))
+        (with-debug-server
+          (spy-on 'read-string :and-return-value "movie title")          
+          (movie-recommendations)))
+      (expect 'read-string :to-have-been-called-with "Enter the name of a movie: "))
     (it "puts the user in a buffer with the correct name"
       (with-api-file "API-KEY"
         (with-debug-server
-            (spy-on 'read-string :and-return-value "42")
-          (movie-recommendations)
-          (expect (buffer-name) :to-equal "IMDb movies recommendations"))))
+          (spy-on 'read-string :and-return-value "42")
+          (movie-recommendations)))
+      (expect (buffer-name) :to-equal "IMDb movies recommendations"))
     (it "puts the user in a buffer with the correct mode"
       (with-api-file "API-KEY"
         (with-debug-server
             (spy-on 'read-string :and-return-value "42")
-          (movie-recommendations)
-          (expect mode-name :to-equal "*IMDb*"))))
+            (movie-recommendations)))
+      (expect mode-name :to-equal "*IMDb*"))
     (it "writes an error message if the movie is not found"
       (with-api-file "API-KEY"
         (with-debug-server
-            (spy-on 'read-string :and-return-value "missing movie")
-          (movie-recommendations)
+          (spy-on 'read-string :and-return-value "missing movie")
+          (movie-recommendations)))
           (expect (buffer-substring (point-min) (point-max))
-                  :to-equal "Movie not found!"))))
+                  :to-equal "Movie not found!"))
     (it "writes an error message if no key is provided"
       (spy-on 'read-string :and-return-value "")
       (movie-recommendations)
@@ -113,6 +110,19 @@
       (with-api-file "wrong API-KEY"
         (with-debug-server
             (spy-on 'read-string :and-return-value "")
-          (movie-recommendations)
-          (expect (buffer-substring (point-min) (point-max))
-                  :to-equal "Invalid API key!"))))))
+            (movie-recommendations)))
+      (expect (buffer-substring (point-min) (point-max))
+              :to-equal "Invalid API key!"))
+    (it "writes the movie details and the rating, with a recommendation"
+      (spy-on 'read-string :and-return-value "jurassic park")
+      (with-api-file "API-KEY"
+        (with-debug-server
+          (movie-recommendations)))
+      (expect (buffer-substring (point-min) (point-max))
+                  :to-equal "Title: Jurassic Park
+Year: 1993
+Rated: PG-13
+Running Time: 127 min
+Plot: A pragmatic Paleontologist visiting an almost complete theme park is tasked with protecting a couple of kids after a power failure causes the park's cloned dinosaurs to run loose.
+
+You should watch this movie right now!"))))
