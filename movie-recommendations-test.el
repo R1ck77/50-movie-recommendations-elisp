@@ -113,7 +113,7 @@
             (movie-recommendations)))
       (expect (buffer-substring (point-min) (point-max))
               :to-equal "Invalid API key!"))
-    (it "writes the movie details and the rating, with a recommendation"
+    (it "writes the movie details and the rating, with a positive review"
       (spy-on 'read-string :and-return-value "jurassic park")
       (with-api-file "API-KEY"
         (with-debug-server
@@ -125,4 +125,17 @@ Rated: PG-13
 Running Time: 127 min
 Plot: A pragmatic Paleontologist visiting an almost complete theme park is tasked with protecting a couple of kids after a power failure causes the park's cloned dinosaurs to run loose.
 
-You should watch this movie right now!"))))
+You should watch this movie right now!"))
+    (it "writes the movie details and the rating, with a negative review"
+      (spy-on 'read-string :and-return-value "alone in the dark")
+      (with-api-file "API-KEY"
+        (with-debug-server
+          (movie-recommendations)))
+      (expect (buffer-substring (point-min) (point-max))
+                  :to-equal "Title: Alone in the Dark
+Year: 2005
+Rated: R
+Running Time: 96 min
+Plot: A detective of the paranormal slowly unravels mysterious events with deadly results.
+
+This is a bad movie, avoid it if you can!"))))
