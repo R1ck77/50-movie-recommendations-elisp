@@ -2,7 +2,9 @@
 (require 'elnode)
 
 (defconst valid-api-key "API-KEY")
-(defconst movie-present-search "jurassic park")
+(defconst movie-title-1 "alone in the dark")
+(defconst movie-title-2 "jurassic park")
+(defconst movie-present (list movie-title-1 movie-title-2))
 
 (defun elnode-error (msg &rest arg)
   "Temporary workaround for elnode errors showing during the test.")
@@ -24,10 +26,11 @@
   (elnode-http-start httpcon 200 '("Content Type" . "application/json"))
   (elnode-http-return httpcon (format "path: %s\nparameters: %s" (elnode-http-pathinfo httpcon) (elnode-http-params httpcon))))
 
-(defconst mock-server--result '(search-result  "jurassic_park_example.json"
-                                search-not-found  "movie_not_found.json"
-                                invalid-key "invalid_api_key.json"
-                                no-key  "no_api_key.json"))
+(defconst mock-server--result (list 'jurassic-park  "jurassic_park_example.json"
+                                    'alone-in-the-dark "alone_in_the_dark_example.json"
+                                    'search-not-found  "movie_not_found.json"
+                                    'invalid-key "invalid_api_key.json"
+                                    'no-key  "no_api_key.json"))
 
 (defun mock-server--get-sample (response-type)
   (let ((file-to-load (concat (file-name-as-directory "sample_results")
@@ -43,12 +46,13 @@
      (insert (format "%s %s\n" api-key search))
      (basic-save-buffer)
      (kill-buffer)))
-     (cond
-      ((not api-key) 'no-key)
-      ((not (equal valid-api-key api-key)) 'invalid-key)
-      ((not (equal movie-present-search search)) 'search-not-found)
-      ((equal movie-present-search search) 'search-result)
-      (t "unexpected condition")))
+  (cond
+   ((not api-key) 'no-key)
+   ((not (equal valid-api-key api-key)) 'invalid-key)
+   ((not (member search movie-present)) 'search-not-found)
+   ((equal movie-title-1 search) 'alone-in-the-dark)
+   ((equal movie-title-2 search) 'jurassic-park)
+   (t "unexpected condition")))
 
 (defun mock-server--select-content (httpcon)
   (mock-server--get-sample
@@ -61,6 +65,7 @@
   (elnode-http-return httpcon (mock-server--select-content httpcon)))
 
 (defun stop-mock-server ()
+  (interactive)
   (condition-case nil
       (elnode-stop 8080)
     (error nil)))
