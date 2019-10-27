@@ -40,12 +40,20 @@
       (movie-recommendations--handle-error answer)
     "I didn't think it this through"))
 
+(defun movie-recommendations-read-api-key ()
+  (interactive)
+  "Read the API key from the \"api-key.txt\" file"
+  (with-temp-buffer
+    (insert-file-contents "api-key.txt")
+    (buffer-substring (point-min)
+                      (point-max))))
+
 (defun movie-recommendations ()
   (interactive)
   (switch-to-buffer (get-buffer-create movie-recommendations-buffer-name))
   (movie-recommendations--mode)
   (let* ((movie-name (read-string "Enter the name of a movie: "))
-         (imdb-answer (movie-recommendations--search-movie "API-KEY" movie-name)))
+         (imdb-answer (movie-recommendations--search-movie (movie-recommendations-read-api-key) movie-name)))
     (insert (movie-recommendations--route-answer imdb-answer))))
 
 (provide 'movie-recommendations)
