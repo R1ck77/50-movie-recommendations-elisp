@@ -18,6 +18,7 @@
 
 ;;; TODO/FIXME use unwind-protect
 (defmacro with-api-file (content &rest forms)
+  (declare (indent 1))
   `(progn
      (condition-case nil
          (progn
@@ -34,12 +35,12 @@
   (describe "movie-recommendations--search-movie"
     (it "returns the \"invalid API key\" content"
       (expect (with-debug-server
-                (movie-recommendations--search-movie "INVALID_KEY" "jurassic park"))
+                  (movie-recommendations--search-movie "INVALID_KEY" "jurassic park"))
               :to-equal '((Response . "False")
                           (Error . "Invalid API key!"))))
     (it "returns the correct movie data if the movie is present"
       (expect (with-debug-server
-                (movie-recommendations--search-movie "API-KEY" "jurassic park"))
+                  (movie-recommendations--search-movie "API-KEY" "jurassic park"))
               :to-equal '((Title . "Jurassic Park")
                           (Year . "1993")
                           (Rated . "PG-13")
@@ -73,40 +74,45 @@
                           (Response . "True"))))
     (it "returns the \"movie not found\" data if no movie is present"
       (expect (with-debug-server
-                (movie-recommendations--search-movie "API-KEY" "invalid-movie"))
+                  (movie-recommendations--search-movie "API-KEY" "invalid-movie"))
               :to-equal '((Response . "False")
                           (Error . "Movie not found!")))))
   (describe "movie-recommendation"
     (it "requests the title of a movie"
-      (with-debug-server 
-       (spy-on 'read-string :and-return-value "movie title")
-       (movie-recommendations)
-       (expect 'read-string :to-have-been-called-with "Enter the name of a movie: ")
-       (movie-recommendations)))
+      (with-api-file "API-KEY"
+        (with-debug-server 
+            (spy-on 'read-string :and-return-value "movie title")
+          (movie-recommendations)
+          (expect 'read-string :to-have-been-called-with "Enter the name of a movie: ")
+          (movie-recommendations))))
     (it "puts the user in a buffer with the correct name"
-      (with-debug-server
-       (spy-on 'read-string :and-return-value "42")
-       (movie-recommendations)
-       (expect (buffer-name) :to-equal "IMDb movies recommendations")))
+      (with-api-file "API-KEY"
+        (with-debug-server
+            (spy-on 'read-string :and-return-value "42")
+          (movie-recommendations)
+          (expect (buffer-name) :to-equal "IMDb movies recommendations"))))
     (it "puts the user in a buffer with the correct mode"
-      (with-debug-server
-       (spy-on 'read-string :and-return-value "42")
-       (movie-recommendations)
-       (expect mode-name :to-equal "*IMDb*")))
+      (with-api-file "API-KEY"
+        (with-debug-server
+            (spy-on 'read-string :and-return-value "42")
+          (movie-recommendations)
+          (expect mode-name :to-equal "*IMDb*"))))
     (it "writes an error message if the movie is not found"
-      (with-debug-server
-       (spy-on 'read-string :and-return-value "missing movie")
-       (movie-recommendations)
-       (expect (buffer-substring (point-min) (point-max))
-               :to-equal "Movie not found!")))
+      (with-api-file "API-KEY"
+        (with-debug-server
+            (spy-on 'read-string :and-return-value "missing movie")
+          (movie-recommendations)
+          (expect (buffer-substring (point-min) (point-max))
+                  :to-equal "Movie not found!"))))
     (it "writes an error message if no key is provided"
       (spy-on 'read-string :and-return-value "")
       (movie-recommendations)
       (expect (buffer-substring (point-min) (point-max))
               :to-equal "No API key provided!"))
     (it "writes an error message if the key provided is wrong"
-      (with-debug-server
-       (spy-on 'read-string :and-return-value "")
-       (movie-recommendations)
-       (expect (buffer-substring (point-min) (point-max))
-               :to-equal "Invalid API key!")))))
+      (with-api-file "wrong API-KEY"
+        (with-debug-server
+            (spy-on 'read-string :and-return-value "")
+          (movie-recommendations)
+          (expect (buffer-substring (point-min) (point-max))
+                  :to-equal "Invalid API key!"))))))

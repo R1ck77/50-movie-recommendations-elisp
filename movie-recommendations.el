@@ -43,17 +43,31 @@
 (defun movie-recommendations-read-api-key ()
   (interactive)
   "Read the API key from the \"api-key.txt\" file"
-  (with-temp-buffer
-    (insert-file-contents "api-key.txt")
-    (buffer-substring (point-min)
-                      (point-max))))
+  (condition-case nil
+   (with-temp-buffer
+     (insert-file-contents "api-key.txt")
+     (buffer-substring (point-min)
+                       (point-max)))
+   (error nil)))
+
+(defun movie-recommendations--no-key ()
+  (insert "No API key provided!"))
+
+(defun movie-recommendations--for-key (api-key)
+  (let* ((movie-name (read-string "Enter the name of a movie: "))
+         (imdb-answer (movie-recommendations--search-movie api-key movie-name)))
+    (insert (movie-recommendations--route-answer imdb-answer))))
+
+(defun movie-recommendations--procedure ()
+  (let ((api-key (movie-recommendations-read-api-key)))
+    (if (not api-key)
+        (movie-recommendations--no-key)
+      (movie-recomendations--for-key api-key))))
 
 (defun movie-recommendations ()
   (interactive)
   (switch-to-buffer (get-buffer-create movie-recommendations-buffer-name))
   (movie-recommendations--mode)
-  (let* ((movie-name (read-string "Enter the name of a movie: "))
-         (imdb-answer (movie-recommendations--search-movie (movie-recommendations-read-api-key) movie-name)))
-    (insert (movie-recommendations--route-answer imdb-answer))))
+  (movie-recommendations--procedure))
 
 (provide 'movie-recommendations)
