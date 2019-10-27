@@ -11,6 +11,21 @@
   `(let ((movie-recommendations-server '("localhost" . 8080)))
      ,@forms))
 
+(defun save-to-file (file content)
+  (with-temp-buffer
+    (insert content)
+    (write-file file)))
+
+;;; TODO/FIXME use unwind-protect
+(defmacro with-api-file (content &rest forms)
+  `(progn
+     (condition-case nil
+         (progn
+           (save-to-file "api-key.txt" ,content)
+           ,@forms)     
+       (error nil))
+     (delete-file "api-key.txt")))
+
 (describe "movie-recommendations"
   (before-all
     (start-mock-server))
