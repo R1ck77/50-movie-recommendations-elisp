@@ -1,5 +1,6 @@
 ;;; -*- lexical-binding: t -*-
 (require 'elnode)
+(require 'json)
 
 (defconst valid-api-key "API-KEY")
 (defconst movie-title-1 "alone in the dark")

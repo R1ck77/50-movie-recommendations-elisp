@@ -1,6 +1,7 @@
 (require 's)
 (setq load-path (cons "." load-path))
 (require 'url-utils)
+(require 'json)
 
 (defconst movie-recommendations-buffer-name "IMDb movies recommendations")
 (defconst movie-recommendations-mode-name "*IMDb*")
@@ -25,7 +26,8 @@
   (kill-all-local-variables)
   (erase-buffer)
   (setq major-mode 'movie-recommendations-mode)
-  (setq mode-name movie-recommendations-mode-name))
+  (setq mode-name movie-recommendations-mode-name)
+  (visual-line-mode))
 
 (defun movie-recommendations--errorp (answer)
   (equal "False" (alist-get 'Response answer)))
@@ -37,13 +39,7 @@
   (insert (movie-recommendations--error-reason answer)))
 
 (defun movie-recommendations--handle-movie-content (answer)
-  (insert (format "Title: %s
-Year: %s
-Rated: %s
-Running Time: %s
-Plot: %s
-
-You should watch this movie right now!" "Jurassic Park" 1993 "PG-13" "127 min" "A pragmatic Paleontologist visiting an almost complete theme park is tasked with protecting a couple of kids after a power failure causes the park's cloned dinosaurs to run loose.")))
+  (insert (movie-recommendations-format-data answer)))
 
 (defun movie-recommendations--handle-answer (answer)
   (if (movie-recommendations--errorp answer)
@@ -78,6 +74,7 @@ You should watch this movie right now!" "Jurassic Park" 1993 "PG-13" "127 min" "
 (defun movie-recommendations ()
   (interactive)
   (switch-to-buffer (get-buffer-create movie-recommendations-buffer-name))
+  (erase-buffer)
   (movie-recommendations--mode)
   (movie-recommendations--procedure))
 

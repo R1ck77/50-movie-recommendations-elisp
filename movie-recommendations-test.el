@@ -25,6 +25,11 @@
          ,@forms)     
      (delete-file "api-key.txt")))
 
+(defun remove-api-key ()
+  (condition-case nil
+      (delete-fil "api-key.txt")
+    (error nil)))
+
 (describe "movie-recommendations"
   (before-all
     (start-mock-server))
@@ -76,18 +81,22 @@
               :to-equal '((Response . "False")
                           (Error . "Movie not found!")))))
   (describe "movie-recommendation"
-    (it "requests the title of a movie"
-      (with-api-file "API-KEY"
-        (with-debug-server
-          (spy-on 'read-string :and-return-value "movie title")          
-          (movie-recommendations)))
-      (expect 'read-string :to-have-been-called-with "Enter the name of a movie: "))
     (it "puts the user in a buffer with the correct name"
       (with-api-file "API-KEY"
         (with-debug-server
           (spy-on 'read-string :and-return-value "42")
           (movie-recommendations)))
       (expect (buffer-name) :to-equal "IMDb movies recommendations"))
+    (it "creates a buffer in visual line mode"
+      (remove-api-key)
+      (movie-recommendations)
+      (expect visual-line-mode :to-be t))
+    (it "requests the title of a movie"
+      (with-api-file "API-KEY"
+        (with-debug-server
+          (spy-on 'read-string :and-return-value "movie title")          
+          (movie-recommendations)))
+      (expect 'read-string :to-have-been-called-with "Enter the name of a movie: "))
     (it "puts the user in a buffer with the correct mode"
       (with-api-file "API-KEY"
         (with-debug-server
@@ -102,6 +111,7 @@
           (expect (buffer-substring (point-min) (point-max))
                   :to-equal "Movie not found!"))
     (it "writes an error message if no key is provided"
+      (remove-api-key)
       (spy-on 'read-string :and-return-value "")
       (movie-recommendations)
       (expect (buffer-substring (point-min) (point-max))
