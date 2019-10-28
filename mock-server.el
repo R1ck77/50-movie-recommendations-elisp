@@ -20,25 +20,29 @@
 
 (defmacro comment (&rest args))
 
-
 (defvar samples-dir "sample_results")
 
 (defun info-handler (httpcon)
   (elnode-http-start httpcon 200 '("Content Type" . "application/json"))
   (elnode-http-return httpcon (format "path: %s\nparameters: %s" (elnode-http-pathinfo httpcon) (elnode-http-params httpcon))))
 
-(defconst mock-server--result (list 'jurassic-park  "jurassic_park_example.json"
-                                    'alone-in-the-dark "alone_in_the_dark_example.json"
-                                    'search-not-found  "movie_not_found.json"
-                                    'invalid-key "invalid_api_key.json"
-                                    'no-key  "no_api_key.json"))
+(defun replace-server (text)
+  (format text "localhost" "8080"))
+
+(defconst mock-server--result (list 'jurassic-park  '("jurassic_park_example.json" . replace-server)
+                                    'alone-in-the-dark '("alone_in_the_dark_example.json" . replace-server)
+                                    'search-not-found  '("movie_not_found.json" . identity)
+                                    'invalid-key '("invalid_api_key.json" . identity)
+                                    'no-key  '("no_api_key.json" . identity)))
 
 (defun mock-server--get-sample (response-type)
-  (let ((file-to-load (concat (file-name-as-directory "sample_results")
-                              (plist-get mock-server--result response-type))))
+  (let* ((example-data (plist-get mock-server--result response-type))
+         (file-to-load (concat (file-name-as-directory "sample_results")
+                              (car example-data))))
     (with-temp-buffer
       (insert-file-contents file-to-load)
-      (buffer-substring-no-properties (point-min) (point-max)))))
+      (funcall (cdr example-data)
+               (buffer-substring-no-properties (point-min) (point-max))))))
 
 (defun mock-server--switch-page (api-key search)
   (comment

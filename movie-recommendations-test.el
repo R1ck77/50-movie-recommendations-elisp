@@ -57,7 +57,7 @@
                           (Language . "English, Spanish")
                           (Country . "USA")
                           (Awards . "Won 3 Oscars. Another 32 wins & 25 nominations.")
-                          (Poster . "https://m.media-amazon.com/images/M/MV5BMjM2MDgxMDg0Nl5BMl5BanBnXkFtZTgwNTM2OTM5NDE@._V1_SX300.jpg")
+                          (Poster . "http://localhost:8080/jurassic.jpg")
                           (Ratings .
                                    [((Source . "Internet Movie Database")
                                      (Value . "8.1/10"))
