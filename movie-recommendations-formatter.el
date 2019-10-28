@@ -9,21 +9,24 @@ A less manichean function would be of course more realistic"
 
 (defun movie-recommendations-format-data (json)
   (let ((title (alist-get 'Title json))
+        (poster (alist-get 'Poster json))
         (year (alist-get 'Year json))
         (rating (alist-get 'Rated json))
         (length (alist-get 'Runtime json))
         (plot (alist-get 'Plot json))
         (imdb-rating (string-to-number (alist-get 'imdbRating json))))
     (format "Title: %s
+
+[%s]
+
 Year: %s
 Rated: %s
 Running Time: %s
 Plot: %s
 
-%s"
-            title year rating
-            length plot
-            (movie-recommendations--evaluation imdb-rating))))
+%s" title poster year rating
+length plot
+(movie-recommendations--evaluation imdb-rating))))
 
 
 (provide 'movie-recommendations-formatter)

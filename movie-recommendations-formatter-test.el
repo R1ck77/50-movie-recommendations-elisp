@@ -5,9 +5,10 @@
 
 (defun read-json (name)
   (json-read-from-string
-   (with-temp-buffer
-     (insert-file-contents (concat "sample_results/" name))
-     (buffer-substring (point-min) (point-max)))))
+   (format (with-temp-buffer
+             (insert-file-contents (concat "sample_results/" name))
+             (buffer-substring (point-min) (point-max)))
+           "somewhere" 80)))
 
 (defconst jurassic-json (read-json "jurassic_park_example.json"))
 (defconst alone-json (read-json "alone_in_the_dark_example.json"))
@@ -17,6 +18,9 @@
     (it "formats the json data for a positive review"
       (expect (movie-recommendations-format-data jurassic-json)
               :to-equal "Title: Jurassic Park
+
+[http://somewhere:80/jurassic.jpg]
+
 Year: 1993
 Rated: PG-13
 Running Time: 127 min
@@ -26,6 +30,9 @@ You should watch this movie right now!"))
     (it "formats the json data for a negative review"
       (expect (movie-recommendations-format-data alone-json)
               :to-equal "Title: Alone in the Dark
+
+[http://somewhere:80/alone.jpg]
+
 Year: 2005
 Rated: R
 Running Time: 96 min

@@ -130,6 +130,9 @@
           (movie-recommendations)))
       (expect (buffer-substring (point-min) (point-max))
                   :to-equal "Title: Jurassic Park
+
+[http://localhost:8080/jurassic.jpg]
+
 Year: 1993
 Rated: PG-13
 Running Time: 127 min
@@ -143,6 +146,9 @@ You should watch this movie right now!"))
           (movie-recommendations)))
       (expect (buffer-substring (point-min) (point-max))
                   :to-equal "Title: Alone in the Dark
+
+[http://localhost:8080/alone.jpg]
+
 Year: 2005
 Rated: R
 Running Time: 96 min
