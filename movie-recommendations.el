@@ -2,6 +2,7 @@
 (setq load-path (cons "." load-path))
 (require 'url-utils)
 (require 'json)
+(require 'movie-recommendations-formatter)
 
 (defconst movie-recommendations-buffer-name "IMDb movies recommendations")
 (defconst movie-recommendations-mode-name "*IMDb*")

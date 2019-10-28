@@ -7,9 +7,14 @@ A less manichean function would be of course more realistic"
       "You should watch this movie right now!"
     "This is a bad movie, avoid it if you can!"))
 
+(defun movie-recommendations--image (url)
+  (with-temp-buffer
+    (insert-image (create-image url nil nil nil) (concat "[" url "]"))
+    (buffer-substring (point-min) (point-max))))
+
 (defun movie-recommendations-format-data (json)
   (let ((title (alist-get 'Title json))
-        (poster (alist-get 'Poster json))
+        (poster (movie-recommendations--image (alist-get 'Poster json)))
         (year (alist-get 'Year json))
         (rating (alist-get 'Rated json))
         (length (alist-get 'Runtime json))
@@ -17,7 +22,7 @@ A less manichean function would be of course more realistic"
         (imdb-rating (string-to-number (alist-get 'imdbRating json))))
     (format "Title: %s
 
-[%s]
+%s
 
 Year: %s
 Rated: %s
