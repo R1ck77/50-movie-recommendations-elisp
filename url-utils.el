@@ -9,6 +9,8 @@
       (buffer-substring-no-properties (point) (point-max)))))
 
 (defun url-utils-get-json-url-content (url)
-  (json-read-from-string (url-utils--get-url-content url))) 
+  (json-read-from-string (url-utils--get-url-content url)))
+
+
 
 (provide 'url-utils)

@@ -81,4 +81,16 @@
     (stop-mock-server))
   (elnode-start 'mock-imdb-handler :port 8080))
 
+(defun stop-servers ()
+  (dolist (port (elnode-ports))
+    (elnode-stop port)))
+
+(defmacro with-debug-server (&rest forms)
+  (let ((result (make-symbol "result")))
+    `(progn
+       (start-mock-server t)
+       (let ((,result (progn ,@forms)))
+         (stop-servers)
+         ,result))))
+
 (provide 'mock-server)

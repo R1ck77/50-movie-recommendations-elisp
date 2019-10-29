@@ -3,11 +3,7 @@
 (require 'movie-recommendations)
 (require 'mock-server)
 
-(defun stop-servers ()
-  (dolist (port (elnode-ports))
-    (elnode-stop port)))
-
-(defmacro with-debug-server (&rest forms)
+(defmacro with-debug-server-coordinates (&rest forms)
   (declare (indent 0))
   `(let ((movie-recommendations-server '("localhost" . 8080)))
      ,@forms))
@@ -37,12 +33,12 @@
     (stop-servers))
   (describe "movie-recommendations--search-movie"
     (it "returns the \"invalid API key\" content"
-      (expect (with-debug-server
+      (expect (with-debug-server-coordinates
                   (movie-recommendations--search-movie "INVALID_KEY" "jurassic park"))
               :to-equal '((Response . "False")
                           (Error . "Invalid API key!"))))
     (it "returns the correct movie data if the movie is present"
-      (expect (with-debug-server
+      (expect (with-debug-server-coordinates
                   (movie-recommendations--search-movie "API-KEY" "jurassic park"))
               :to-equal '((Title . "Jurassic Park")
                           (Year . "1993")
@@ -76,14 +72,14 @@
                           (Website . "N/A")
                           (Response . "True"))))
     (it "returns the \"movie not found\" data if no movie is present"
-      (expect (with-debug-server
+      (expect (with-debug-server-coordinates
                   (movie-recommendations--search-movie "API-KEY" "invalid-movie"))
               :to-equal '((Response . "False")
                           (Error . "Movie not found!")))))
   (describe "movie-recommendation"
     (it "puts the user in a buffer with the correct name"
       (with-api-file "API-KEY"
-        (with-debug-server
+        (with-debug-server-coordinates
           (spy-on 'read-string :and-return-value "42")
           (movie-recommendations)))
       (expect (buffer-name) :to-equal "IMDb movies recommendations"))
@@ -93,19 +89,19 @@
       (expect visual-line-mode :to-be t))
     (it "requests the title of a movie"
       (with-api-file "API-KEY"
-        (with-debug-server
+        (with-debug-server-coordinates
           (spy-on 'read-string :and-return-value "movie title")          
           (movie-recommendations)))
       (expect 'read-string :to-have-been-called-with "Enter the name of a movie: "))
     (it "puts the user in a buffer with the correct mode"
       (with-api-file "API-KEY"
-        (with-debug-server
+        (with-debug-server-coordinates
             (spy-on 'read-string :and-return-value "42")
             (movie-recommendations)))
       (expect mode-name :to-equal "*IMDb*"))
     (it "writes an error message if the movie is not found"
       (with-api-file "API-KEY"
-        (with-debug-server
+        (with-debug-server-coordinates
           (spy-on 'read-string :and-return-value "missing movie")
           (movie-recommendations)))
           (expect (buffer-substring (point-min) (point-max))
@@ -118,7 +114,7 @@
               :to-equal "No API key provided!"))
     (it "writes an error message if the key provided is wrong"
       (with-api-file "wrong API-KEY"
-        (with-debug-server
+        (with-debug-server-coordinates
             (spy-on 'read-string :and-return-value "")
             (movie-recommendations)))
       (expect (buffer-substring (point-min) (point-max))
@@ -126,7 +122,7 @@
     (it "writes the movie details and the rating, with a positive review"
       (spy-on 'read-string :and-return-value "jurassic park")
       (with-api-file "API-KEY"
-        (with-debug-server
+        (with-debug-server-coordinates
           (movie-recommendations)))
       (expect (buffer-substring (point-min) (point-max))
                   :to-equal "Title: Jurassic Park
@@ -142,7 +138,7 @@ You should watch this movie right now!"))
     (it "writes the movie details and the rating, with a negative review"
       (spy-on 'read-string :and-return-value "alone in the dark")
       (with-api-file "API-KEY"
-        (with-debug-server
+        (with-debug-server-coordinates
           (movie-recommendations)))
       (expect (buffer-substring (point-min) (point-max))
                   :to-equal "Title: Alone in the Dark
