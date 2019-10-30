@@ -33,7 +33,9 @@
                                     'alone-in-the-dark '("alone_in_the_dark_example.json" . replace-server)
                                     'search-not-found  '("movie_not_found.json" . identity)
                                     'invalid-key '("invalid_api_key.json" . identity)
-                                    'no-key  '("no_api_key.json" . identity)))
+                                    'no-key  '("no_api_key.json" . identity)
+                                    'jurassic-image '("jurassic.jpg" . identity)
+                                    'alone-image '("alone.jpg" . identity)))
 
 (defun mock-server--get-sample (response-type)
   (let* ((example-data (plist-get mock-server--result response-type))
@@ -44,7 +46,7 @@
       (funcall (cdr example-data)
                (buffer-substring-no-properties (point-min) (point-max))))))
 
-(defun mock-server--switch-page (api-key search)
+(defun mock-server--switch-page (path api-key search)
   (comment
    (with-current-buffer (find-file "/tmp/visited.txt")
      (goto-char (point-max))
@@ -52,6 +54,8 @@
      (basic-save-buffer)
      (kill-buffer)))
   (cond
+   ((equal path "/jurassic.jpg") 'jurassic-image)
+   ((equal path "/alone.jpg") 'alone-image)
    ((not api-key) 'no-key)
    ((not (equal valid-api-key api-key)) 'invalid-key)
    ((not (member search movie-present)) 'search-not-found)
@@ -62,8 +66,9 @@
 (defun mock-server--select-content (httpcon)
   (mock-server--get-sample
    (let ((api-key (elnode-http-param httpcon "apikey"))
-         (search (elnode-http-param httpcon "t")))
-     (mock-server--switch-page api-key search))))
+         (search (elnode-http-param httpcon "t"))
+         (path (elnode-http-pathinfo httpcon)))
+     (mock-server--switch-page path api-key search))))
 
 (defun mock-imdb-handler (httpcon)
   (elnode-http-start httpcon 200 '("Content Type" . "application/json"))
