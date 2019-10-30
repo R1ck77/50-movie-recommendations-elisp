@@ -11,9 +11,12 @@
 (defun url-utils-get-json-url-content (url)
   (json-read-from-string (url-utils--get-url-content url)))
 
+;;; TODO/FIXME a lot of duplicated code
 (defun url-utils-download-image (url path)
   (with-current-buffer (url-retrieve-synchronously url t)
-    (write-region (point-min) (point-max) path))
+    (goto-char url-http-end-of-headers)
+    (forward-line) ;; TODO/FIXME this is bugged: I need to get the content size
+    (write-region (point) (point-max) path))
   path)
 
 
