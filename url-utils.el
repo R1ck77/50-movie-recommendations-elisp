@@ -11,6 +11,10 @@
 (defun url-utils-get-json-url-content (url)
   (json-read-from-string (url-utils--get-url-content url)))
 
+(defun url-utils-download-image (url path)
+  (with-current-buffer (url-retrieve-synchronously url t)
+    (write-region (point-min) (point-max) path))
+  path)
 
 
 (provide 'url-utils)
