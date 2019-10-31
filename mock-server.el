@@ -71,8 +71,12 @@
      (mock-server--switch-page path api-key search))))
 
 (defun mock-imdb-handler (httpcon)
-  (elnode-http-start httpcon 200 '("Content Type" . "application/json"))
-  (elnode-http-return httpcon (mock-server--select-content httpcon)))
+  (let ((content (mock-server--select-content httpcon)))
+    (elnode-http-start httpcon 200
+                             '("Content Type" . "application/json")
+                             (cons "Content-Length"
+                                   (number-to-string (length content))))
+    (elnode-http-return httpcon content)))
 
 (defun stop-mock-server ()
   (interactive)
