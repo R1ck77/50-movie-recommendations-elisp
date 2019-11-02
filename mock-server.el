@@ -1,14 +1,12 @@
 ;;; -*- lexical-binding: t -*-
-(require 'elnode)
+(require 'cl)
+(require 'web-server)
 (require 'json)
 
 (defconst valid-api-key "API-KEY")
 (defconst movie-title-1 "alone in the dark")
 (defconst movie-title-2 "jurassic park")
 (defconst movie-present (list movie-title-1 movie-title-2))
-
-(defun elnode-error (msg &rest arg)
-  "Temporary workaround for elnode errors showing during the test.")
 
 (defmacro my-lexical-binding-q ()
   "Copied from here: 'https://yoo2080.wordpress.com/2011/12/30/how-to-check-dynamically-if-lexical-scoping-is-active-in-emacs-lisp/'"
@@ -21,10 +19,6 @@
 (defmacro comment (&rest args))
 
 (defvar samples-dir "sample_results")
-
-(defun info-handler (httpcon)
-  (elnode-http-start httpcon 200 '("Content Type" . "application/json"))
-  (elnode-http-return httpcon (format "path: %s\nparameters: %s" (elnode-http-pathinfo httpcon) (elnode-http-params httpcon))))
 
 (defun replace-server (text)
   (format text "localhost" "8080"))
@@ -63,43 +57,43 @@
    ((equal movie-title-2 search) 'jurassic-park)
    (t "unexpected condition")))
 
-(defun mock-server--select-content (httpcon)
+(defun param-value (headers key)
+  (cdr (assoc key headers)))
+
+(defun path (headers)
+  (cdr (assoc :GET headers)))
+
+(defun mock-server--select-content (headers)
   (mock-server--get-sample
-   (let ((api-key (elnode-http-param httpcon "apikey"))
-         (search (elnode-http-param httpcon "t"))
-         (path (elnode-http-pathinfo httpcon)))
+   (let ((api-key (param-value headers "apikey"))
+         (search (param-value headers "t"))
+         (path (path headers)))
      (mock-server--switch-page path api-key search))))
 
-(defun mock-imdb-handler (httpcon)
-  (let ((content (mock-server--select-content httpcon)))
-    (elnode-http-start httpcon 200
-                             '("Content Type" . "application/json")
-                             (cons "Content-Length"
-                                   (number-to-string (length content))))
-    (elnode-http-return httpcon content)))
+(defun mock-imdb-handler (response)
+  (with-slots (process headers) response
+      (let ((content (mock-server--select-content headers)))
+        (ws-response-header process 200
+                            '("Content Type" . "application/json")
+                            (cons "Content-Length" (number-to-string (length content))))
+        (process-send-string process content))))
 
 (defun stop-mock-server ()
   (interactive)
-  (condition-case nil
-      (elnode-stop 8080)
-    (error nil)))
+  (ws-stop-all))
 
 (defun start-mock-server (&optional cycle)
   (interactive)
   (when cycle
     (stop-mock-server))
-  (elnode-start 'mock-imdb-handler :port 8080))
-
-(defun stop-servers ()
-  (dolist (port (elnode-ports))
-    (elnode-stop port)))
+  (ws-start 'mock-imdb-handler 8080))
 
 (defmacro with-debug-server (&rest forms)
   (let ((result (make-symbol "result")))
     `(progn
        (start-mock-server t)
        (let ((,result (progn ,@forms)))
-         (stop-servers)
+         (stop-mock-server)
          ,result))))
 
 (provide 'mock-server)
