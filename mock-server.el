@@ -4,8 +4,8 @@
 (require 'json)
 
 (defconst valid-api-key "API-KEY")
-(defconst movie-title-1 "alone in the dark")
-(defconst movie-title-2 "jurassic park")
+(defconst movie-title-1 "alone+in+the+dark")
+(defconst movie-title-2 "jurassic+park")
 (defconst movie-present (list movie-title-1 movie-title-2))
 
 (defmacro my-lexical-binding-q ()
