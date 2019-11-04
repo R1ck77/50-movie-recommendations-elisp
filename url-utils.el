@@ -15,7 +15,7 @@
 (defun url-utils-download-image (url path)
   (with-current-buffer (url-retrieve-synchronously url t)
     (goto-char url-http-end-of-headers)
-    (forward-line) ;; TODO/FIXME this is bugged: I need to get the content size
+    (forward-line)
     (write-region (point) (point-max) path))
   path)
 
