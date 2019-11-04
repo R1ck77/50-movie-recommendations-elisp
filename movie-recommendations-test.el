@@ -165,5 +165,7 @@ This is a bad movie, avoid it if you can!")
       (spy-on 'read-string :and-return-value "alone in the dark")
       (with-api-file "API-KEY"
         (with-debug-server-coordinates
-          (movie-recommendations)))
-      (expect (point) :to-be 1))))
+          (movie-recommendations))
+        (search-forward "["))
+      (let ((display-property (get-text-property (point) 'display)))
+        (expect (car display-property) :to-be 'image)))))
