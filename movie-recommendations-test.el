@@ -127,7 +127,7 @@
       (expect (buffer-substring (point-min) (point-max))
                   :to-equal "Title: Jurassic Park
 
-[http://localhost:8080/jurassic.jpg]
+[poster for \"Jurassic Park\"]
 
 Year: 1993
 Rated: PG-13
@@ -143,7 +143,7 @@ You should watch this movie right now!"))
       (expect (buffer-substring (point-min) (point-max))
                   :to-equal "Title: Alone in the Dark
 
-[http://localhost:8080/alone.jpg]
+[poster for \"Alone in the Dark\"]
 
 Year: 2005
 Rated: R

@@ -5,7 +5,7 @@
 
 (defvar jurassic-park-representation "Title: Jurassic Park
 
-[http://somewhere:80/jurassic.jpg]
+[poster for \"Jurassic Park\"]
 
 Year: 1993
 Rated: PG-13
@@ -16,7 +16,7 @@ You should watch this movie right now!")
 
 (defvar alone-in-the-dark-representation "Title: Alone in the Dark
 
-[http://somewhere:80/alone.jpg]
+[poster for \"Alone in the Dark\"]
 
 Year: 2005
 Rated: R

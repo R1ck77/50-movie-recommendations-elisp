@@ -15,7 +15,7 @@ A less manichean function would be of course more realistic"
 
 (defun movie-recommendations--image (id url title)
   (let ((image-path (get-image id url))
-        (image-alt (format "\[poster for %s\]" title)))
+        (image-alt (format "\[poster for \"%s\"\]" title)))
     (put-text-property 0 (length image-alt) 'display (list 'image :file image-path :type 'jpeg) image-alt)
     image-alt))
 
