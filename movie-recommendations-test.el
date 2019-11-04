@@ -3,6 +3,28 @@
 (require 'movie-recommendations)
 (require 'mock-server)
 
+(defconst jurassic-sample "Title: Jurassic Park
+
+[poster for \"Jurassic Park\"]
+
+Year: 1993
+Rated: PG-13
+Running Time: 127 min
+Plot: A pragmatic Paleontologist visiting an almost complete theme park is tasked with protecting a couple of kids after a power failure causes the park's cloned dinosaurs to run loose.
+
+You should watch this movie right now!")
+
+(defconst alone-sample "Title: Alone in the Dark
+
+[poster for \"Alone in the Dark\"]
+
+Year: 2005
+Rated: R
+Running Time: 96 min
+Plot: A detective of the paranormal slowly unravels mysterious events with deadly results.
+
+This is a bad movie, avoid it if you can!")
+
 (defmacro with-debug-server-coordinates (&rest forms)
   (declare (indent 0))
   `(let ((movie-recommendations-server '("localhost" . 8080)))
@@ -34,12 +56,12 @@
   (describe "movie-recommendations--search-movie"
     (it "returns the \"invalid API key\" content"
       (expect (with-debug-server-coordinates
-                  (movie-recommendations--search-movie "INVALID_KEY" "jurassic park"))
+                (movie-recommendations--search-movie "INVALID_KEY" "jurassic park"))
               :to-equal '((Response . "False")
                           (Error . "Invalid API key!"))))
     (it "returns the correct movie data if the movie is present"
       (expect (with-debug-server-coordinates
-                  (movie-recommendations--search-movie "API-KEY" "jurassic park"))
+                (movie-recommendations--search-movie "API-KEY" "jurassic park"))
               :to-equal '((Title . "Jurassic Park")
                           (Year . "1993")
                           (Rated . "PG-13")
@@ -73,7 +95,7 @@
                           (Response . "True"))))
     (it "returns the \"movie not found\" data if no movie is present"
       (expect (with-debug-server-coordinates
-                  (movie-recommendations--search-movie "API-KEY" "invalid-movie"))
+                (movie-recommendations--search-movie "API-KEY" "invalid-movie"))
               :to-equal '((Response . "False")
                           (Error . "Movie not found!")))))
   (describe "movie-recommendation"
@@ -96,16 +118,16 @@
     (it "puts the user in a buffer with the correct mode"
       (with-api-file "API-KEY"
         (with-debug-server-coordinates
-            (spy-on 'read-string :and-return-value "42")
-            (movie-recommendations)))
+          (spy-on 'read-string :and-return-value "42")
+          (movie-recommendations)))
       (expect mode-name :to-equal "*IMDb*"))
     (it "writes an error message if the movie is not found"
       (with-api-file "API-KEY"
         (with-debug-server-coordinates
           (spy-on 'read-string :and-return-value "missing movie")
           (movie-recommendations)))
-          (expect (buffer-substring (point-min) (point-max))
-                  :to-equal "Movie not found!"))
+      (expect (buffer-substring (point-min) (point-max))
+              :to-equal "Movie not found!"))
     (it "writes an error message if no key is provided"
       (remove-api-key)
       (spy-on 'read-string :and-return-value "")
@@ -115,8 +137,8 @@
     (it "writes an error message if the key provided is wrong"
       (with-api-file "wrong API-KEY"
         (with-debug-server-coordinates
-            (spy-on 'read-string :and-return-value "")
-            (movie-recommendations)))
+          (spy-on 'read-string :and-return-value "")
+          (movie-recommendations)))
       (expect (buffer-substring (point-min) (point-max))
               :to-equal "Invalid API key!"))
     (it "writes the movie details and the rating, with a positive review"
@@ -125,36 +147,23 @@
         (with-debug-server-coordinates
           (movie-recommendations)))
       (expect (buffer-substring (point-min) (point-max))
-                  :to-equal "Title: Jurassic Park
-
-[poster for \"Jurassic Park\"]
-
-Year: 1993
-Rated: PG-13
-Running Time: 127 min
-Plot: A pragmatic Paleontologist visiting an almost complete theme park is tasked with protecting a couple of kids after a power failure causes the park's cloned dinosaurs to run loose.
-
-You should watch this movie right now!"))
+              :to-equal jurassic-sample))
     (it "writes the movie details and the rating, with a negative review"
       (spy-on 'read-string :and-return-value "alone in the dark")
       (with-api-file "API-KEY"
         (with-debug-server-coordinates
           (movie-recommendations)))
       (expect (buffer-substring (point-min) (point-max))
-                  :to-equal "Title: Alone in the Dark
-
-[poster for \"Alone in the Dark\"]
-
-Year: 2005
-Rated: R
-Running Time: 96 min
-Plot: A detective of the paranormal slowly unravels mysterious events with deadly results.
-
-This is a bad movie, avoid it if you can!")
-)
-(it "moves the point at the start of the buffer"
-  (spy-on 'read-string :and-return-value "alone in the dark")
-  (with-api-file "API-KEY"
-                 (with-debug-server-coordinates
-                  (movie-recommendations)))
-  (expect (point) :to-be 1))))
+              :to-equal alone-sample))
+    (it "moves the point at the start of the buffer"
+      (spy-on 'read-string :and-return-value "alone in the dark")
+      (with-api-file "API-KEY"
+        (with-debug-server-coordinates
+          (movie-recommendations)))
+      (expect (point) :to-be 1))
+    (it "shows the poster of the movie (whenever possible)"
+      (spy-on 'read-string :and-return-value "alone in the dark")
+      (with-api-file "API-KEY"
+        (with-debug-server-coordinates
+          (movie-recommendations)))
+      (expect (point) :to-be 1))))
