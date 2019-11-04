@@ -77,6 +77,7 @@
   (switch-to-buffer (get-buffer-create movie-recommendations-buffer-name))
   (erase-buffer)
   (movie-recommendations--mode)
-  (movie-recommendations--procedure))
+  (movie-recommendations--procedure)
+  (goto-char (point-min)))
 
 (provide 'movie-recommendations)

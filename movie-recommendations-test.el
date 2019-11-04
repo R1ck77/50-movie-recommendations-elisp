@@ -150,4 +150,11 @@ Rated: R
 Running Time: 96 min
 Plot: A detective of the paranormal slowly unravels mysterious events with deadly results.
 
-This is a bad movie, avoid it if you can!"))))
+This is a bad movie, avoid it if you can!")
+)
+(it "moves the point at the start of the buffer"
+  (spy-on 'read-string :and-return-value "alone in the dark")
+  (with-api-file "API-KEY"
+                 (with-debug-server-coordinates
+                  (movie-recommendations)))
+  (expect (point) :to-be 1))))
