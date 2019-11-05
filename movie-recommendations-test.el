@@ -50,9 +50,11 @@ This is a bad movie, avoid it if you can!")
 
 (describe "movie-recommendations"
   (before-all
+    (url-utils-cached-clear)
     (start-mock-server))
   (after-all
-    (stop-servers))
+    (stop-servers)
+    (url-utils-cached-clear))
   (describe "movie-recommendations--search-movie"
     (it "returns the \"invalid API key\" content"
       (expect (with-debug-server-coordinates

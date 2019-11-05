@@ -1,6 +1,6 @@
 (require 's)
 (setq load-path (cons "." load-path))
-(require 'url-utils)
+(require 'cached-url-utils)
 (require 'json)
 (require 'movie-recommendations-formatter)
 
@@ -21,7 +21,7 @@
                      (movie-recommendations--get-base-url)
                      api-key
                      (movie-recommendations--format-search-string search-string))))
-    (url-utils-get-json-url-content url)))
+    (url-utils-cached-get-json-url-content url)))
 
 (defun movie-recommendations--mode ()
   (kill-all-local-variables)
