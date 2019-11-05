@@ -1,6 +1,8 @@
 (setq load-path (cons "." load-path))
 (require 'url-utils)
 
+(defconst cached-url-utils--cache-folder "cache")
+
 (defun cached-url-utils--url-to-hash (url)
   (md5 url))
 
@@ -10,7 +12,7 @@
     (buffer-substring-no-properties (point-min) (point-max))))
 
 (defun cached-url-utils--get-path (url)
-  (concat (file-name-as-directory "cache")
+  (concat (file-name-as-directory cached-url-utils--cache-folder)
           (cached-url-utils--url-to-hash url)))
 
 (defun cached-url-utils--get-cached (url)
@@ -34,7 +36,15 @@
                                (or (cached-url-utils--get-cached url)
                                    (url-utils-get-json-url-content url))))
 
+(defun cached-url-utils--cache-files ()
+  (seq-filter 'file-regular-p
+              (mapcar (lambda (x)
+                        (concat (file-name-as-directory cached-url-utils--cache-folder) x))
+                      (directory-files cached-url-utils--cache-folder))))
+
 (defun url-utils-cached-clear ()
-  )
+  (mapc (lambda (x)
+          (delete-file x))
+        (cached-url-utils--cache-files)))
 
 (provide 'cached-url-utils)
