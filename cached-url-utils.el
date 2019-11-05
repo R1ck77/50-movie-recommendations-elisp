@@ -18,7 +18,7 @@
 (defun cached-url-utils--get-cached (url)
   (let ((cached-file-path (cached-url-utils--get-path url)))
     (if (file-exists-p cached-file-path)
-        (read-from-string (cached-url-utils--read-file cached-file-path)))))
+        (json-read-from-string (cached-url-utils--read-file cached-file-path)))))
 
 (defun cached-url-utils--write-file (path content)
   (with-temp-buffer

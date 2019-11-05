@@ -15,7 +15,7 @@
   (after-each
     (safe-delete-file temp-file))
   (after-all
-      (url-utils-cached-clear))
+    (url-utils-cached-clear))
   (describe "url-utils-cached-clear"
     (it "removes all files from the \"cached\" folder"
       (create-empty-file "foo")
@@ -38,8 +38,13 @@
       (url-utils-cached-clear)
       (with-debug-server
        (spy-on 'url-retrieve-synchronously :and-call-through)
-       (url-utils-cached-get-json-url-content "http://localhost:8080/anything/?apikey=wrongkey")
-       (url-utils-cached-get-json-url-content "http://localhost:8080/anything/?apikey=wrongkey")       
-       (url-utils-cached-get-json-url-content "http://localhost:8080/anything/?apikey=wrongkey"))
+       (url-utils-cached-get-json-url-content "http://localhost:8080/anything/?apikey=API-KEY&t=jurassic+park")
+       (url-utils-cached-get-json-url-content "http://localhost:8080/anything/?apikey=API-KEY&t=jurassic+park")
+       (url-utils-cached-get-json-url-content "http://localhost:8080/anything/?apikey=API-KEY&t=jurassic+park"))
       (expect  'url-retrieve-synchronously
-               :to-have-been-called-times 1))))
+               :to-have-been-called-times 1))
+    (it "returns the same json after subsequent calls"
+      (with-debug-server 
+       (url-utils-cached-clear)
+       (expect (url-utils-cached-get-json-url-content "http://localhost:8080/anything/?apikey=API-KEY&t=jurassic+park")
+               :to-equal (url-utils-cached-get-json-url-content "http://localhost:8080/anything/?apikey=API-KEY&t=jurassic+park"))))))
