@@ -1,3 +1,4 @@
+(require 's)
 (require 'buttercup)
 (setq load-path (cons "." load-path))
 (require 'movie-recommendations)
@@ -29,6 +30,9 @@ This is a bad movie, avoid it if you can!")
   (declare (indent 0))
   `(let ((movie-recommendations-server '("localhost" . 8080)))
      ,@forms))
+
+(defun is-jpeg-p (name)
+  (s-ends-with? ".jpg" name))
 
 (defun save-to-file (file content)
   (with-temp-buffer
@@ -170,4 +174,14 @@ This is a bad movie, avoid it if you can!")
           (movie-recommendations))
         (search-forward "["))
       (let ((display-property (get-text-property (point) 'display)))
-        (expect (car display-property) :to-be 'image)))))
+        (expect (car display-property) :to-be 'image))))
+  (describe "movie-recommendations-clear-cache"
+    (it "removes all files from the cache and images directory"
+      (spy-on 'read-string :and-return-value "jurassic park")
+      (with-api-file "API-KEY"
+        (with-debug-server-coordinates
+          (movie-recommendations)))
+      (movie-recommendations-clear-cache)
+      (let ((all-images (seq-filter 'is-jpeg-p (directory-files "cache/images"))))
+       (expect (length all-images)
+               :to-be 0)))))

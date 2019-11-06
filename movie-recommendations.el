@@ -40,7 +40,7 @@
   (insert (movie-recommendations--error-reason answer)))
 
 (defun movie-recommendations--handle-movie-content (answer)
-  (insert (movie-recommendations-format-data answer)))
+  (insert (movie-recommendations-format-data answer 'url-utils-download-image)))
 
 (defun movie-recommendations--handle-answer (answer)
   (if (movie-recommendations--errorp answer)
@@ -79,5 +79,8 @@
   (movie-recommendations--mode)
   (movie-recommendations--procedure)
   (goto-char (point-min)))
+
+(defun movie-recommendations-clear-cache ()
+  (url-utils-cached-clear))
 
 (provide 'movie-recommendations)

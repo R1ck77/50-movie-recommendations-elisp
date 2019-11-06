@@ -1,7 +1,9 @@
+(require 's)
 (setq load-path (cons "." load-path))
 (require 'url-utils)
 
 (defconst cached-url-utils--cache-folder "cache")
+(defconst cached-url-utils--images-folder (concat (file-name-as-directory cached-url-utils--cache-folder) "images"))
 
 (defun cached-url-utils--url-to-hash (url)
   (md5 url))
@@ -36,15 +38,23 @@
                                (or (cached-url-utils--get-cached url)
                                    (url-utils-get-json-url-content url))))
 
-(defun cached-url-utils--cache-files ()
+(defun cached-url-utils--dir-contents (directory)
   (seq-filter 'file-regular-p
               (mapcar (lambda (x)
-                        (concat (file-name-as-directory cached-url-utils--cache-folder) x))
-                      (directory-files cached-url-utils--cache-folder))))
+                        (concat (file-name-as-directory directory) x))
+                      (directory-files directory))))
+
+(defun cached-url-utils--cache-files ()
+  (cached-url-utils--dir-contents cached-url-utils--cache-folder))
+
+(defun cached-url-utils--cached-image-files ()
+  (seq-filter (lambda (x) (s-ends-with? ".jpg" x))
+              (cached-url-utils--dir-contents cached-url-utils--images-folder)))
 
 (defun url-utils-cached-clear ()
   (mapc (lambda (x)
           (delete-file x))
-        (cached-url-utils--cache-files)))
+        (append (cached-url-utils--cache-files)
+                (cached-url-utils--cached-image-files))))
 
 (provide 'cached-url-utils)
