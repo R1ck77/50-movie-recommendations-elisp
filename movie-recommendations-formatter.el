@@ -10,7 +10,8 @@ A less manichean function would be of course more realistic"
 (defun movie-recommendations--image (url title image-downloader)
   (let ((image-path (url-utils-cached-get-image url image-downloader))
         (image-alt (format "\[poster for \"%s\"\]" title)))
-    (put-text-property 0 (length image-alt) 'display (list 'image :file image-path :type 'jpeg) image-alt)
+    (put-text-property 0 (length image-alt)
+                       'display (list 'image :file image-path :type 'jpeg) image-alt)
     image-alt))
 
 (defun movie-recommendations-format-data (json &optional image-downloader)

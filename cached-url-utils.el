@@ -61,7 +61,10 @@
 
 (defun url-utils-cached-get-image (url &optional image-downloader)
   (let ((image-downloader (or image-downloader 'url-utils-download-image))
-        (image-path (concat (file-name-as-directory cached-url-utils--images-folder) (cached-url-utils--url-to-hash url) ".jpg")))
+        (image-path (concat (file-name-as-directory (file-truename "."))
+                            (file-name-as-directory cached-url-utils--images-folder)
+                            (cached-url-utils--url-to-hash url)
+                            ".jpg")))
     (if (not (file-exists-p image-path))
         (apply image-downloader (list url image-path)))
     image-path))
