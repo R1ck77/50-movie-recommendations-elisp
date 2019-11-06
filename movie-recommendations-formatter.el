@@ -39,5 +39,4 @@ Plot: %s
 length plot
 (movie-recommendations--evaluation imdb-rating)))))
 
-
 (provide 'movie-recommendations-formatter)
