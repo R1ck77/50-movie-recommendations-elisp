@@ -15,7 +15,8 @@
   (cached-url-utils--dir-contents cached-url-utils--cache-folder))
 
 (defun cached-url-utils--cached-image-files ()
-  (seq-filter (lambda (x) (s-ends-with? ".jpg" x))
+  (seq-filter (lambda (x)
+                (s-ends-with? ".jpg" x))
               (cached-url-utils--dir-contents cached-url-utils--images-folder)))
 
 (defun url-utils-cached-clear ()
