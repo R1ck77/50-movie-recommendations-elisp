@@ -59,14 +59,17 @@
                                (or (cached-url-utils--get-cached url)
                                    (url-utils-get-json-url-content url))))
 
+(defun url-utils-cached--get-image-path (url)
+  (concat (file-name-as-directory (file-truename "."))
+          (file-name-as-directory cached-url-utils--images-folder)
+          (cached-url-utils--url-to-hash url)
+          ".jpg"))
+
 (defun url-utils-cached-get-image (url &optional image-downloader)
-  (let ((image-downloader (or image-downloader 'url-utils-download-image))
-        (image-path (concat (file-name-as-directory (file-truename "."))
-                            (file-name-as-directory cached-url-utils--images-folder)
-                            (cached-url-utils--url-to-hash url)
-                            ".jpg")))
+  (let ((downloader (or image-downloader 'url-utils-download-image))
+        (image-path (url-utils-cached--get-image-path url)))
     (if (not (file-exists-p image-path))
-        (apply image-downloader (list url image-path)))
+        (apply downloader (list url image-path)))
     image-path))
 
 (provide 'cached-url-utils)
