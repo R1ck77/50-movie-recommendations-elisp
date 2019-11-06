@@ -7,21 +7,13 @@ A less manichean function would be of course more realistic"
       "You should watch this movie right now!"
     "This is a bad movie, avoid it if you can!"))
 
-(defun get-image (id url downloader)
-  (let ((image-path (concat (file-name-as-directory (concat (file-name-as-directory (file-truename ".")) "cache/images")) (concat id ".jpg"))))
-    (if (not (file-exists-p image-path))
-        (apply downloader (list url image-path)))
-    image-path))
-
-;;; TODO/FIXME wrong place for the caching!
-(defun movie-recommendations--image (id url title downloader)
-  (let ((image-path (get-image id url downloader))
+(defun movie-recommendations--image (url title image-downloader)
+  (let ((image-path (url-utils-cached-get-image url image-downloader))
         (image-alt (format "\[poster for \"%s\"\]" title)))
     (put-text-property 0 (length image-alt) 'display (list 'image :file image-path :type 'jpeg) image-alt)
     image-alt))
 
-;;; TODO/FIXME too many arguments
-(defun movie-recommendations-format-data (json image-downloader)
+(defun movie-recommendations-format-data (json &optional image-downloader)
   "Format the json appropriately.
 
 image-downloader is a function that takes a url and a path"
@@ -31,8 +23,7 @@ image-downloader is a function that takes a url and a path"
         (length (alist-get 'Runtime json))
         (plot (alist-get 'Plot json))
         (imdb-rating (string-to-number (alist-get 'imdbRating json))))
-    (let ((poster (movie-recommendations--image (alist-get 'imdbID json)
-                                                (alist-get 'Poster json)
+    (let ((poster (movie-recommendations--image (alist-get 'Poster json)
                                                 title
                                                 image-downloader)))
       (format "Title: %s

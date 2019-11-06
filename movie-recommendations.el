@@ -40,7 +40,7 @@
   (insert (movie-recommendations--error-reason answer)))
 
 (defun movie-recommendations--handle-movie-content (answer)
-  (insert (movie-recommendations-format-data answer 'url-utils-download-image)))
+  (insert (movie-recommendations-format-data answer)))
 
 (defun movie-recommendations--handle-answer (answer)
   (if (movie-recommendations--errorp answer)

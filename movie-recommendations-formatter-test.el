@@ -38,13 +38,13 @@ This is a bad movie, avoid it if you can!")
 (describe "movie-recommendations-formatter"
   (describe "movie-recommendations-format-data"
     (it "formats the json data for a positive review"
-      (expect (movie-recommendations-format-data jurassic-json (lambda (x path)))
+      (expect (movie-recommendations-format-data jurassic-json (lambda (_ _)))
               :to-equal jurassic-park-representation))
     (it "formats the json data for a negative review"
-      (expect (movie-recommendations-format-data alone-json (lambda (x path)))
+      (expect (movie-recommendations-format-data alone-json (lambda (_ _)))
               :to-equal alone-in-the-dark-representation))
     (it  "it embeds the poster image"
-      (let* ((content (movie-recommendations-format-data jurassic-json (lambda (x path))))
+      (let* ((content (movie-recommendations-format-data jurassic-json (lambda (_ _))))
              (start-of-image (string-match "[[]" content))
              (display-property (get-text-property start-of-image 'display content)))
         (expect (first display-property)
